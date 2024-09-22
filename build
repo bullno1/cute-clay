@@ -1,0 +1,16 @@
+#!/bin/sh
+
+mkdir -p .build
+cd .build
+
+if [ ! -f build.ninja ]
+then
+	cmake \
+		-G "Ninja" \
+		-DCMAKE_TOOLCHAIN_FILE=../cmake/linux.cmake \
+		-DCMAKE_BUILD_TYPE=RelWithDebInfo \
+		-DCMAKE_EXPORT_COMPILE_COMMANDS=ON \
+		..
+fi
+
+cmake --build .

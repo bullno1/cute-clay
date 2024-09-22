@@ -1,0 +1,7 @@
+#!/bin/sh -e
+
+inotifywait -e CLOSE_WRITE  -m src | \
+    while read path action file
+	do
+		./build || true
+    done
