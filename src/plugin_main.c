@@ -1,6 +1,3 @@
-#include <clay.h>
-#include <cute_input.h>
-#include <cute_time.h>
 #define REMODULE_PLUGIN_IMPLEMENTATION
 #include <remodule.h>
 #include "plugin_interface.h"
@@ -58,6 +55,7 @@ fixed_update(void* udata) {
 static void
 update(void) {
 	cf_app_update(fixed_update);
+	cf_render_to(cf_app_get_canvas(), true);
 
 	// UI
 	int w, h;
@@ -176,7 +174,7 @@ update(void) {
 		/*0.000f*/
 	/*);*/
 
-	cf_app_draw_onto_screen(true);
+	cf_app_draw_onto_screen(false);
 }
 
 static void

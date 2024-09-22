@@ -65,8 +65,8 @@ cute_clay_render(Clay_RenderCommandArray cmds) {
 				// TODO: Different borders
 				cf_draw_box_rounded(
 					cute_clay_aabb(cmd.boundingBox),
-					cmd.config.borderElementConfig->top.width * 0.5f,
-					cmd.config.borderElementConfig->cornerRadius.topLeft * 0.5f
+					cmd.config.borderElementConfig->top.width * 0.25f,
+					cmd.config.borderElementConfig->cornerRadius.topLeft * 0.25f
 				);
 				cf_draw_pop_color();
 				break;
@@ -85,14 +85,16 @@ cute_clay_render(Clay_RenderCommandArray cmds) {
 			case CLAY_RENDER_COMMAND_TYPE_IMAGE:
 				break;
 			case CLAY_RENDER_COMMAND_TYPE_SCISSOR_START:
+				cf_render_to(cf_app_get_canvas(), false);
 				cf_render_settings_push_scissor((CF_Rect){
 					.x = cmd.boundingBox.x,
-					.y = -cmd.boundingBox.y,
+					.y = cmd.boundingBox.y,
 					.w = cmd.boundingBox.width,
 					.h = cmd.boundingBox.height,
 				});
 				break;
 			case CLAY_RENDER_COMMAND_TYPE_SCISSOR_END:
+				cf_render_to(cf_app_get_canvas(), false);
 				cf_render_settings_pop_scissor();
 				break;
 			case CLAY_RENDER_COMMAND_TYPE_CUSTOM:
