@@ -3,5 +3,7 @@
 inotifywait -e CLOSE_WRITE  -m src | \
     while read path action file
 	do
+		echo "Rebuilding"
 		./build || true
+		echo "Done"
     done

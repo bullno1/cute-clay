@@ -1,68 +1,192 @@
-#include <cute_app.h>
-#include <cute_color.h>
-#include <cute_draw.h>
-#include <cute_math.h>
+#include <clay.h>
+#include <cute_input.h>
 #include <cute_time.h>
 #define REMODULE_PLUGIN_IMPLEMENTATION
 #include <remodule.h>
 #include "plugin_interface.h"
 #include <cute.h>
+#include "cute_clay.h"
 
-REMODULE_VAR(double, counter) = 0.f;
+static plugin_interface_t* plugin_interface = NULL;
+
+REMODULE_VAR(bool, app_created) = false;
+
+REMODULE_VAR(Clay_Arena, clay_memory) = { 0 };
+REMODULE_VAR(bool, clay_debug) = false;
 
 static const char* WINDOW_TITLE = "Cute clay";
 
-static void reinit(void);
-
 static void
-init(int argc, const char* argv[]) {
-	int options = CF_APP_OPTIONS_WINDOW_POS_CENTERED_BIT;
-	cf_make_app(
-		WINDOW_TITLE, 0, 0, 0, 640, 480, options, argv[0]
-	);
+init(void) {
+	// Cute Framework
+	if (!app_created) {
+		int options = CF_APP_OPTIONS_WINDOW_POS_CENTERED_BIT;
+		cf_make_app(
+			WINDOW_TITLE, 0, 0, 0, 1280, 720, options, plugin_interface->argv[0]
+		);
+		app_created = true;
+	}
 
-	reinit();
-}
-
-static void
-reinit(void) {
 	cf_set_fixed_timestep(30);
 	cf_app_set_vsync(true);
 	cf_app_set_title(WINDOW_TITLE);
+
+	// Clay
+	if (clay_memory.memory == NULL) {
+		uint64_t totalMemorySize = Clay_MinMemorySize();
+		clay_memory = (Clay_Arena) {
+			.label = CLAY_STRING("Clay Memory Arena"),
+			.memory = malloc(totalMemorySize),
+			.capacity = totalMemorySize
+		};
+	}
+
+	int width, height;
+	cf_app_get_size(&width, &height);
+	Clay_Initialize(clay_memory, (Clay_Dimensions){
+		.width = width,
+		.height = height,
+	});
+	Clay_SetDebugModeEnabled(clay_debug);
+	Clay_SetMeasureTextFunction(cute_clay_measure_text);
 }
 
 static void
 fixed_update(void* udata) {
-	counter += 0.05f;
-	counter = fmodf(counter, CF_PI * 2);
 }
 
 static void
 update(void) {
 	cf_app_update(fixed_update);
 
-	float lerp_counter = cf_lerp(counter - 0.05f, counter, CF_DELTA_TIME_INTERPOLANT);
-	cf_draw_push_color(cf_color_red());
-	cf_draw_box(
-		cf_make_aabb(
-			cf_v2(sinf(lerp_counter) * 150.f, 10.f),
-			cf_v2(200.f + sinf(lerp_counter) * 20.f, 100.f)
-		),
-		2.4f,
-		4.0f
+	// UI
+	int w, h;
+	cf_app_get_size(&w, &h);
+	Clay_SetLayoutDimensions((Clay_Dimensions){ w, h });
+
+	Clay_SetPointerState(
+		(Clay_Vector2){ cf_mouse_x(), cf_mouse_y() },
+		cf_mouse_down(CF_MOUSE_BUTTON_LEFT)
 	);
-	cf_draw_pop_color();
+	Clay_UpdateScrollContainers(
+		true,
+		(Clay_Vector2){ 0.f, cf_mouse_wheel_motion() },
+		CF_DELTA_TIME
+	);
+	cf_push_font("Calibri");
+	Clay_BeginLayout();
+
+	Clay_Color root_bg = { 128, 128, 128, 255 };
+	Clay_Color sidebar_bg = { 100, 100, 100, 255 };
+	Clay_Color text_color = { 255, 255, 255, 255 };
+
+	CLAY_RECTANGLE(
+		CLAY_ID("root"),
+		CLAY_LAYOUT(
+			.sizing = {
+				.width = CLAY_SIZING_GROW(),
+				.height = CLAY_SIZING_GROW()
+			},
+			.padding = { 16, 16 },
+			.childGap = 16
+		),
+		CLAY_RECTANGLE_CONFIG(.color = root_bg),
+		{
+			CLAY_RECTANGLE(
+				CLAY_ID("SideBar"),
+				CLAY_LAYOUT(
+					.layoutDirection = CLAY_TOP_TO_BOTTOM,
+					.sizing = {
+						.width = CLAY_SIZING_FIXED(300),
+						.height = CLAY_SIZING_GROW()
+					},
+					.padding = {16, 16},
+					.childGap = 16
+				),
+				CLAY_RECTANGLE_CONFIG(.color = sidebar_bg),
+				{
+					CLAY_TEXT(
+						CLAY_ID("SideBar/Title"),
+						CLAY_STRING("Side bar with a long af title what is this clipping?"),
+						CLAY_TEXT_CONFIG(
+							.fontSize = 24,
+							.textColor = text_color,
+						)
+					);
+				}
+			);
+
+			CLAY_RECTANGLE(
+				CLAY_ID("Content"),
+				CLAY_LAYOUT(
+					.layoutDirection = CLAY_TOP_TO_BOTTOM,
+					.sizing = {
+						.width = CLAY_SIZING_GROW(),
+						.height = CLAY_SIZING_GROW()
+					},
+					.padding = {16, 16},
+					.childGap = 16
+				),
+				CLAY_RECTANGLE_CONFIG(.color = sidebar_bg),
+				{
+					CLAY_TEXT(
+						CLAY_ID("Content/Title"),
+						CLAY_STRING("Content"),
+						CLAY_TEXT_CONFIG(
+							.fontSize = 24,
+							.textColor = text_color,
+						)
+					);
+				}
+			);
+		}
+	);
+
+	cf_pop_font();
+	Clay_RenderCommandArray clay_render_cmds = Clay_EndLayout();
+	cute_clay_render(clay_render_cmds);
+
+	if (cf_key_just_pressed(CF_KEY_F12)) {
+		clay_debug = !clay_debug;
+		Clay_SetDebugModeEnabled(clay_debug);
+	}
+
+	/*float half_width = w * 0.5f;*/
+	/*float half_height = h * 0.5f;*/
+	/*cf_push_font("Calibri");*/
+	/*cf_push_font_size(40.f);*/
+	/*const char* text = "The quick brown fox jumps over the lazy dogff";*/
+	/*cf_draw_text(*/
+		/*text,*/
+		/*(CF_V2){*/
+			/*.x = -half_width,*/
+			/*.y = half_height,*/
+		/*},*/
+		/*-1*/
+	/*);*/
+	/*CF_V2 size = cf_text_size(text, -1);*/
+	/*cf_draw_box(*/
+		/*(CF_Aabb){*/
+			/*.min.x = -half_width,*/
+			/*.min.y = half_height - size.y,*/
+			/*.max.x = -half_width + size.x,*/
+			/*.max.y = half_height,*/
+		/*},*/
+		/*0.000f,*/
+		/*0.000f*/
+	/*);*/
 
 	cf_app_draw_onto_screen(true);
 }
 
 static void
 cleanup(void) {
+	free(clay_memory.memory);
 	cf_destroy_app();
 }
 
 static void
-register_plugin(plugin_interface_t* plugin_interface) {
+register_plugin(void) {
 	plugin_interface->init = init;
 	plugin_interface->update = update;
 	plugin_interface->cleanup = cleanup;
@@ -70,19 +194,19 @@ register_plugin(plugin_interface_t* plugin_interface) {
 
 void
 remodule_entry(remodule_op_t op, void* userdata) {
-	plugin_interface_t* plugin_interface = userdata;
+	plugin_interface = userdata;
 
 	switch (op) {
 		case REMODULE_OP_LOAD:
-			register_plugin(plugin_interface);
+			register_plugin();
 			break;
 		case REMODULE_OP_UNLOAD:
 			break;
 		case REMODULE_OP_BEFORE_RELOAD:
 			break;
 		case REMODULE_OP_AFTER_RELOAD:
-			register_plugin(plugin_interface);
-			reinit();
+			register_plugin();
+			init();
 			break;
 	}
 }

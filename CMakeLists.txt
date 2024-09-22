@@ -49,7 +49,11 @@ if (MSVC)
 	add_compile_definitions(_CRT_SECURE_NO_WARNINGS)
 	# MSVC does not define max_align_t
 else()
-	add_compile_options(-Wall -Wextra -pedantic -Werror -Wno-unused-parameter)
+	add_compile_options(
+		-Wall -Wextra -pedantic -Werror
+		-Wno-unused-parameter
+		-Wno-error=c23-extensions
+	)
 endif()
 
 add_subdirectory(src)

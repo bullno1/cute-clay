@@ -5,3 +5,6 @@
 [submodule "deps/remodule"]
 	path = deps/remodule
 	url = https://github.com/bullno1/remodule.git
+[submodule "deps/clay"]
+	path = deps/clay
+	url = https://github.com/nicbarker/clay.git

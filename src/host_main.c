@@ -8,27 +8,32 @@
 
 int
 main(int argc, const char* argv[]) {
-	plugin_interface_t plugin_interface = { 0 };
+	plugin_interface_t plugin_interface = {
+		.argc = argc,
+		.argv = argv,
+	};
 	remodule_t* module = remodule_load(
 		"cuteclay_plugin" REMODULE_DYNLIB_EXT,
 		&plugin_interface
 	);
 	remodule_monitor_t* monitor = remodule_monitor(module);
 
-	plugin_interface.init(argc, argv);
+	plugin_interface.init();
 
 	while (cf_app_is_running()) {
 		if (plugin_interface.update != NULL) {
 			plugin_interface.update();
 		}
 
-		remodule_check(monitor);
+		if (remodule_check(monitor)) {
+			printf("Reloaded\n");
+		}
 	}
+
+	plugin_interface.cleanup();
 
 	remodule_unmonitor(monitor);
 	remodule_unload(module);
-
-	plugin_interface.cleanup();
 
 	return 0;
 }
