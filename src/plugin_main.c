@@ -55,7 +55,6 @@ fixed_update(void* udata) {
 static void
 update(void) {
 	cf_app_update(fixed_update);
-	cf_render_to(cf_app_get_canvas(), true);
 
 	// UI
 	int w, h;
@@ -174,7 +173,7 @@ update(void) {
 		/*0.000f*/
 	/*);*/
 
-	cf_app_draw_onto_screen(false);
+	cf_app_draw_onto_screen(true);
 }
 
 static void

@@ -85,8 +85,7 @@ cute_clay_render(Clay_RenderCommandArray cmds) {
 			case CLAY_RENDER_COMMAND_TYPE_IMAGE:
 				break;
 			case CLAY_RENDER_COMMAND_TYPE_SCISSOR_START:
-				cf_render_to(cf_app_get_canvas(), false);
-				cf_render_settings_push_scissor((CF_Rect){
+				cf_draw_push_scissor((CF_Rect){
 					.x = cmd.boundingBox.x,
 					.y = cmd.boundingBox.y,
 					.w = cmd.boundingBox.width,
@@ -94,8 +93,7 @@ cute_clay_render(Clay_RenderCommandArray cmds) {
 				});
 				break;
 			case CLAY_RENDER_COMMAND_TYPE_SCISSOR_END:
-				cf_render_to(cf_app_get_canvas(), false);
-				cf_render_settings_pop_scissor();
+				cf_draw_pop_scissor();
 				break;
 			case CLAY_RENDER_COMMAND_TYPE_CUSTOM:
 				break;

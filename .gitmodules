@@ -1,6 +1,6 @@
 [submodule "deps/cute"]
 	path = deps/cute_framework
-	url = https://github.com/bullno1/cute_framework.git
+	url = https://github.com/RandyGaul/cute_framework.git
 	branch = sdl3-fetch-http
 [submodule "deps/remodule"]
 	path = deps/remodule
