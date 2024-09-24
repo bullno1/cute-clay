@@ -1,3 +1,4 @@
+#define CLAY_EXTEND_CONFIG_TEXT const char* fontName;
 #include <clay.h>
 
 #define CUTE_CLAY_LOOP_VAR CUTE_CLAY_LOOP_VAR2(cute_clay__, __LINE__)
@@ -17,8 +18,13 @@
 #define CUTE_CLAY_RECTANGLE(...) \
 	CUTE_CLAY_SCOPE(Clay__OpenRectangleElement, Clay__CloseElementWithChildren, __VA_ARGS__)
 
+typedef void (*cute_clay_custom_renderer_t)(Clay_RenderCommand cmd);
+
 Clay_Dimensions
 cute_clay_measure_text(Clay_String* text, Clay_TextElementConfig* config);
 
 void
-cute_clay_render(Clay_RenderCommandArray cmds);
+cute_clay_render(
+	Clay_RenderCommandArray cmds,
+	cute_clay_custom_renderer_t custom_redenderer
+);

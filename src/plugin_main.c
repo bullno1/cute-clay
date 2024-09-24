@@ -101,7 +101,7 @@ update(void) {
 			CLAY_TEXT(
 				CLAY_LOCAL_ID("Title"),
 				CLAY_STRING("Side bar with a long affffff titlef what is this clipping?"),
-				CLAY_TEXT_CONFIG(.fontSize = 24, .textColor = text_color)
+				CLAY_TEXT_CONFIG(.fontSize = 24, .textColor = text_color, .fontName = "Calibri")
 			);
 		}
 
@@ -128,7 +128,7 @@ update(void) {
 
 	cf_pop_font();
 	Clay_RenderCommandArray clay_render_cmds = Clay_EndLayout();
-	cute_clay_render(clay_render_cmds);
+	cute_clay_render(clay_render_cmds, NULL);
 
 	if (cf_key_just_pressed(CF_KEY_F12)) {
 		clay_debug = !clay_debug;

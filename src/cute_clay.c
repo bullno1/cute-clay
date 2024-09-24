@@ -1,7 +1,7 @@
 #define CLAY_IMPLEMENTATION
+#include "cute_clay.h"
 #include <cute_app.h>
 #include <cute_draw.h>
-#include "cute_clay.h"
 
 static inline CF_Aabb
 cute_clay_aabb(Clay_BoundingBox bbox) {
@@ -30,7 +30,13 @@ cute_clay_push_color(Clay_Color color) {
 Clay_Dimensions
 cute_clay_measure_text(Clay_String* text, Clay_TextElementConfig* config) {
 	cf_push_font_size(config->fontSize);
+	if (config->fontName) {
+		cf_push_font(config->fontName);
+	}
 	CF_V2 size = cf_text_size(text->chars, text->length);
+	if (config->fontName) {
+		cf_pop_font();
+	}
 	cf_pop_font_size(config->fontSize);
 	return (Clay_Dimensions){
 		.width = size.x,
@@ -39,7 +45,10 @@ cute_clay_measure_text(Clay_String* text, Clay_TextElementConfig* config) {
 }
 
 void
-cute_clay_render(Clay_RenderCommandArray cmds) {
+cute_clay_render(
+	Clay_RenderCommandArray cmds,
+	cute_clay_custom_renderer_t custom_redenderer
+) {
 	int w, h;
 	cf_app_get_size(&w, &h);
 
@@ -95,6 +104,9 @@ cute_clay_render(Clay_RenderCommandArray cmds) {
 				cf_draw_pop_scissor();
 				break;
 			case CLAY_RENDER_COMMAND_TYPE_CUSTOM:
+				if (custom_redenderer) {
+					custom_redenderer(cmd);
+				}
 				break;
 		}
 	}
