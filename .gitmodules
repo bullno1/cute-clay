@@ -8,3 +8,6 @@
 [submodule "deps/clay"]
 	path = deps/clay
 	url = https://github.com/nicbarker/clay.git
+[submodule "deps/stb"]
+	path = deps/stb
+	url = https://github.com/nothings/stb.git

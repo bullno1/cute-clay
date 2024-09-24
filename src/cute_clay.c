@@ -91,6 +91,13 @@ cute_clay_render(
 				cf_pop_font_size();
 				break;
 			case CLAY_RENDER_COMMAND_TYPE_IMAGE:
+				{
+					CF_Sprite* sprite = cmd.config.imageElementConfig->imageData;
+					// TODO: clip or scale?
+					sprite->transform.p.x = cmd.boundingBox.x;
+					sprite->transform.p.y = cmd.boundingBox.y;
+					cf_draw_sprite(sprite);
+				}
 				break;
 			case CLAY_RENDER_COMMAND_TYPE_SCISSOR_START:
 				cf_draw_push_scissor((CF_Rect){
