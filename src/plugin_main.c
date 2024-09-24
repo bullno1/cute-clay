@@ -120,7 +120,7 @@ update(void) {
 		) {
 			CLAY_TEXT(
 				CLAY_LOCAL_ID("Title"),
-				CLAY_STRING("Content"),
+				CLAY_STRING("<shake freq=8 x=2.5 y=1>Content</shake>"),
 				CLAY_TEXT_CONFIG(.fontSize = 24, .textColor = text_color)
 			);
 		}
