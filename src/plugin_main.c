@@ -73,67 +73,58 @@ update(void) {
 	Clay_Color sidebar_bg = { 100, 100, 100, 255 };
 	Clay_Color text_color = { 255, 255, 255, 255 };
 
-	CLAY_RECTANGLE(
+	CUTE_CLAY_RECTANGLE(
 		CLAY_ID("root"),
 		CLAY_LAYOUT(
 			.sizing = {
-				.width = CLAY_SIZING_GROW(),
-				.height = CLAY_SIZING_GROW()
+				.width = CLAY_SIZING_GROW(0),
+				.height = CLAY_SIZING_GROW(0)
 			},
 			.padding = { 16, 16 },
 			.childGap = 16
 		),
-		CLAY_RECTANGLE_CONFIG(.color = root_bg),
-		{
-			CLAY_RECTANGLE(
-				CLAY_ID("SideBar"),
-				CLAY_LAYOUT(
-					.layoutDirection = CLAY_TOP_TO_BOTTOM,
-					.sizing = {
-						.width = CLAY_SIZING_FIXED(300),
-						.height = CLAY_SIZING_GROW()
-					},
-					.padding = {16, 16},
-					.childGap = 16
-				),
-				CLAY_RECTANGLE_CONFIG(.color = sidebar_bg),
-				{
-					CLAY_TEXT(
-						CLAY_LOCAL_ID("Title"),
-						CLAY_STRING("Side bar with a long affffff titlef what is this clipping?"),
-						CLAY_TEXT_CONFIG(
-							.fontSize = 24,
-							.textColor = text_color,
-						)
-					);
-				}
-			);
-
-			CLAY_RECTANGLE(
-				CLAY_ID("Content"),
-				CLAY_LAYOUT(
-					.layoutDirection = CLAY_TOP_TO_BOTTOM,
-					.sizing = {
-						.width = CLAY_SIZING_GROW(),
-						.height = CLAY_SIZING_GROW()
-					},
-					.padding = {16, 16},
-					.childGap = 16
-				),
-				CLAY_RECTANGLE_CONFIG(.color = sidebar_bg),
-				{
-					CLAY_TEXT(
-						CLAY_LOCAL_ID("Title"),
-						CLAY_STRING("Content"),
-						CLAY_TEXT_CONFIG(
-							.fontSize = 24,
-							.textColor = text_color,
-						)
-					);
-				}
+		CLAY_RECTANGLE_CONFIG(.color = root_bg)
+	) {
+		CUTE_CLAY_RECTANGLE(
+			CLAY_ID("SideBar"),
+			CLAY_LAYOUT(
+				.layoutDirection = CLAY_TOP_TO_BOTTOM,
+				.sizing = {
+					.width = CLAY_SIZING_FIXED(300),
+					.height = CLAY_SIZING_GROW(0)
+				},
+				.padding = {16, 16},
+				.childGap = 16
+			),
+			CLAY_RECTANGLE_CONFIG(.color = sidebar_bg)
+		) {
+			CLAY_TEXT(
+				CLAY_LOCAL_ID("Title"),
+				CLAY_STRING("Side bar with a long affffff titlef what is this clipping?"),
+				CLAY_TEXT_CONFIG(.fontSize = 24, .textColor = text_color)
 			);
 		}
-	);
+
+		CUTE_CLAY_RECTANGLE(
+			CLAY_ID("Content"),
+			CLAY_LAYOUT(
+				.layoutDirection = CLAY_TOP_TO_BOTTOM,
+				.sizing = {
+					.width = CLAY_SIZING_GROW(0),
+					.height = CLAY_SIZING_GROW(0)
+				},
+				.padding = {16, 16},
+				.childGap = 16
+			),
+			CLAY_RECTANGLE_CONFIG(.color = sidebar_bg)
+		) {
+			CLAY_TEXT(
+				CLAY_LOCAL_ID("Title"),
+				CLAY_STRING("Content"),
+				CLAY_TEXT_CONFIG(.fontSize = 24, .textColor = text_color)
+			);
+		}
+	}
 
 	cf_pop_font();
 	Clay_RenderCommandArray clay_render_cmds = Clay_EndLayout();
