@@ -31,8 +31,8 @@ init(void) {
 	// Clay
 	uint64_t totalMemorySize = Clay_MinMemorySize();
 	void* memory = clay_memory.memory != NULL ? clay_memory.memory : malloc(totalMemorySize);
-	memset(memory, 0, totalMemorySize);
 	clay_memory = Clay_CreateArenaWithCapacityAndMemory(totalMemorySize, memory);
+	memset(memory, 0, totalMemorySize);  // TODO: remove once fix is merged
 
 	int width, height;
 	cf_app_get_size(&width, &height);
@@ -99,7 +99,7 @@ update(void) {
 				CLAY_RECTANGLE_CONFIG(.color = sidebar_bg),
 				{
 					CLAY_TEXT(
-						CLAY_ID("SideBar/Title"),
+						CLAY_LOCAL_ID("Title"),
 						CLAY_STRING("Side bar with a long affffff titlef what is this clipping?"),
 						CLAY_TEXT_CONFIG(
 							.fontSize = 24,
@@ -123,7 +123,7 @@ update(void) {
 				CLAY_RECTANGLE_CONFIG(.color = sidebar_bg),
 				{
 					CLAY_TEXT(
-						CLAY_ID("Content/Title"),
+						CLAY_LOCAL_ID("Title"),
 						CLAY_STRING("Content"),
 						CLAY_TEXT_CONFIG(
 							.fontSize = 24,
