@@ -74,13 +74,12 @@ cute_clay_render(Clay_RenderCommandArray cmds) {
 				cf_push_font_size(cmd.config.textElementConfig->fontSize);
 				cute_clay_push_color(cmd.config.textElementConfig->textColor);
 				cf_draw_text(
-						cmd.text.chars,
-						(CF_V2){ cmd.boundingBox.x, -cmd.boundingBox.y },
-						cmd.text.length
+					cmd.text.chars,
+					(CF_V2){ cmd.boundingBox.x, -cmd.boundingBox.y },
+					cmd.text.length
 				);
 				cf_draw_pop_color();
 				cf_pop_font_size();
-				/*cf_pop_text_clip_box();*/
 				break;
 			case CLAY_RENDER_COMMAND_TYPE_IMAGE:
 				break;

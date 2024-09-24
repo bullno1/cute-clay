@@ -29,14 +29,10 @@ init(void) {
 	cf_app_set_title(WINDOW_TITLE);
 
 	// Clay
-	if (clay_memory.memory == NULL) {
-		uint64_t totalMemorySize = Clay_MinMemorySize();
-		clay_memory = (Clay_Arena) {
-			.label = CLAY_STRING("Clay Memory Arena"),
-			.memory = malloc(totalMemorySize),
-			.capacity = totalMemorySize
-		};
-	}
+	uint64_t totalMemorySize = Clay_MinMemorySize();
+	void* memory = clay_memory.memory != NULL ? clay_memory.memory : malloc(totalMemorySize);
+	memset(memory, 0, totalMemorySize);
+	clay_memory = Clay_CreateArenaWithCapacityAndMemory(totalMemorySize, memory);
 
 	int width, height;
 	cf_app_get_size(&width, &height);
@@ -104,7 +100,7 @@ update(void) {
 				{
 					CLAY_TEXT(
 						CLAY_ID("SideBar/Title"),
-						CLAY_STRING("Side bar with a long af title what is this clipping?"),
+						CLAY_STRING("Side bar with a long affffff titlef what is this clipping?"),
 						CLAY_TEXT_CONFIG(
 							.fontSize = 24,
 							.textColor = text_color,
@@ -147,31 +143,6 @@ update(void) {
 		clay_debug = !clay_debug;
 		Clay_SetDebugModeEnabled(clay_debug);
 	}
-
-	/*float half_width = w * 0.5f;*/
-	/*float half_height = h * 0.5f;*/
-	/*cf_push_font("Calibri");*/
-	/*cf_push_font_size(40.f);*/
-	/*const char* text = "The quick brown fox jumps over the lazy dogff";*/
-	/*cf_draw_text(*/
-		/*text,*/
-		/*(CF_V2){*/
-			/*.x = -half_width,*/
-			/*.y = half_height,*/
-		/*},*/
-		/*-1*/
-	/*);*/
-	/*CF_V2 size = cf_text_size(text, -1);*/
-	/*cf_draw_box(*/
-		/*(CF_Aabb){*/
-			/*.min.x = -half_width,*/
-			/*.min.y = half_height - size.y,*/
-			/*.max.x = -half_width + size.x,*/
-			/*.max.y = half_height,*/
-		/*},*/
-		/*0.000f,*/
-		/*0.000f*/
-	/*);*/
 
 	cf_app_draw_onto_screen(true);
 }

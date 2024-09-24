@@ -6,19 +6,20 @@ set(plugin_sources
 	"plugin_main.c"
 	"cute_clay.c"
 )
-setup_library(cuteclay_plugin FALSE "${plugin_sources}")
-target_link_libraries(cuteclay_plugin PRIVATE
+setup_library(cute-clay_plugin FALSE "${plugin_sources}")
+target_link_libraries(cute-clay_plugin PRIVATE
 	cute  # :">
 	remodule
 	clay
 )
-set_target_properties(cuteclay_plugin PROPERTIES
-	OUTPUT_NAME "cuteclay_plugin"
+set_target_properties(cute-clay_plugin PROPERTIES
+	OUTPUT_NAME "cute-clay"
 	PREFIX ""
 )
+target_compile_definitions(cute-clay_plugin PRIVATE "CLAY_OVERFLOW_TRAP")
 
-add_executable(cuteclay "host_main.c")
-target_link_libraries(cuteclay PRIVATE
+add_executable(cute-clay "host_main.c")
+target_link_libraries(cute-clay PRIVATE
 	cute  # :">
 	remodule
 )

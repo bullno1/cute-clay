@@ -13,7 +13,7 @@ main(int argc, const char* argv[]) {
 		.argv = argv,
 	};
 	remodule_t* module = remodule_load(
-		"cuteclay_plugin" REMODULE_DYNLIB_EXT,
+		"cute-clay" REMODULE_DYNLIB_EXT,
 		&plugin_interface
 	);
 	remodule_monitor_t* monitor = remodule_monitor(module);
