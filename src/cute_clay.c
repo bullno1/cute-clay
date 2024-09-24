@@ -94,8 +94,8 @@ cute_clay_render(
 				{
 					CF_Sprite* sprite = cmd.config.imageElementConfig->imageData;
 					// TODO: clip or scale?
-					sprite->transform.p.x = cmd.boundingBox.x;
-					sprite->transform.p.y = cmd.boundingBox.y;
+					sprite->transform.p.x = cmd.boundingBox.x + sprite->w * 0.5f + sprite->local_offset.x;
+					sprite->transform.p.y = -cmd.boundingBox.y - sprite->h * 0.5f - sprite->local_offset.y;
 					cf_draw_sprite(sprite);
 				}
 				break;

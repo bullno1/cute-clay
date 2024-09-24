@@ -10,6 +10,8 @@ REMODULE_VAR(bool, app_created) = false;
 
 REMODULE_VAR(Clay_Arena, clay_memory) = { 0 };
 REMODULE_VAR(bool, clay_debug) = false;
+REMODULE_VAR(CF_Sprite, sprite) = { 0 };
+REMODULE_VAR(htbl CF_Sprite*, sprite_instances) = NULL;
 
 static const char* WINDOW_TITLE = "Cute clay";
 
@@ -42,6 +44,11 @@ init(void) {
 	});
 	Clay_SetDebugModeEnabled(clay_debug);
 	Clay_SetMeasureTextFunction(cute_clay_measure_text);
+
+	// Assets
+	if (!sprite.name) {
+		sprite = cf_make_demo_sprite();
+	}
 }
 
 static void
@@ -116,13 +123,84 @@ update(void) {
 				.padding = {16, 16},
 				.childGap = 16
 			),
-			CLAY_RECTANGLE_CONFIG(.color = sidebar_bg)
+			CLAY_RECTANGLE_CONFIG(.color = sidebar_bg, .cornerRadius.topLeft = 10.f)
 		) {
 			CLAY_TEXT(
 				CLAY_LOCAL_ID("Title"),
-				CLAY_STRING("<shake freq=8 x=2.5 y=1>Content</shake>"),
+				CLAY_STRING("<shake>Content</shake>"),
 				CLAY_TEXT_CONFIG(.fontSize = 24, .textColor = text_color)
 			);
+
+			CUTE_CLAY_CONTAINER(
+				CLAY_ID("Sprite container"),
+				CLAY_LAYOUT(
+					.layoutDirection = CLAY_LEFT_TO_RIGHT,
+					.sizing = {
+						.width = CLAY_SIZING_GROW(0),
+						.height = CLAY_SIZING_GROW(0)
+					},
+					.childAlignment.x = CLAY_ALIGN_X_LEFT,
+					.childGap = 10,
+				)
+			) {
+				// Create a separate instance for each animation
+				// This has to be done in a separate pass since the sprite address
+				// can change.
+				for (int i = 0; i < hsize(sprite.animations); ++i) {
+					const CF_Animation* animation = sprite.animations[i];
+
+					if (
+						sprite_instances == NULL
+						|| hget_ptr(sprite_instances, animation->name) == NULL
+					) {
+						hset(sprite_instances, animation->name, sprite);
+						CF_Sprite* instance = hget_ptr(sprite_instances, animation->name);
+						cf_sprite_play(instance, animation->name);
+					}
+				}
+
+				for (int i = 0; i < hsize(sprite_instances); ++i) {
+					CUTE_CLAY_BORDER(
+						CLAY_LOCAL_IDI("Animation", i),
+						CLAY_LAYOUT(
+							.layoutDirection = CLAY_TOP_TO_BOTTOM,
+							.childAlignment.x = CLAY_ALIGN_X_CENTER,
+							.sizing = {
+								.width = CLAY_SIZING_FIT(0),
+								.height = CLAY_SIZING_FIT(0),
+							},
+							.padding = { 5, 5 },
+						),
+						CLAY_BORDER_CONFIG_OUTSIDE(
+							.color = cute_clay_color(cf_color_white()),
+							.width = 1,
+						)
+					) {
+						CF_Sprite* instance = &sprite_instances[i];
+						cf_sprite_update(instance);
+
+						CLAY_IMAGE(
+							CLAY_LOCAL_ID("Sprite"),
+							CLAY_LAYOUT(
+								.sizing = {
+									.width = CLAY_SIZING_FIXED(instance->w),
+									.height = CLAY_SIZING_FIXED(instance->h),
+								}
+							),
+							Clay__StoreImageElementConfig(cute_clay_sprite(instance)),
+						);
+
+						CLAY_TEXT(
+							CLAY_LOCAL_ID("Animation name"),
+							((Clay_String){
+								.length = strlen(instance->animation->name),
+								.chars = instance->animation->name,
+							}),
+							CLAY_TEXT_CONFIG(.fontSize = 15, .textColor = text_color)
+						);
+					}
+				}
+			}
 		}
 	}
 
@@ -141,6 +219,8 @@ update(void) {
 static void
 cleanup(void) {
 	free(clay_memory.memory);
+	hfree(sprite_instances);
+
 	cf_destroy_app();
 }
 

@@ -21,6 +21,9 @@
 #define CUTE_CLAY_RECTANGLE(...) \
 	CUTE_CLAY_SCOPE(Clay__OpenRectangleElement, Clay__CloseElementWithChildren, __VA_ARGS__)
 
+#define CUTE_CLAY_BORDER(...) \
+	CUTE_CLAY_SCOPE(Clay__OpenBorderElement, Clay__CloseElementWithChildren, __VA_ARGS__)
+
 typedef void (*cute_clay_custom_renderer_t)(Clay_RenderCommand cmd);
 
 static inline Clay_Color
