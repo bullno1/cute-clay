@@ -106,7 +106,7 @@ update(void) {
 			CLAY_RECTANGLE_CONFIG(.color = sidebar_bg)
 		) {
 			CLAY_TEXT(
-				CLAY_LOCAL_ID("Title"),
+				CLAY_ID_LOCAL("Title"),
 				CLAY_STRING("Side bar with a long affffff titlef what is this clipping?"),
 				CLAY_TEXT_CONFIG(.fontSize = 24, .textColor = text_color, .fontName = "Calibri")
 			);
@@ -126,7 +126,7 @@ update(void) {
 			CLAY_RECTANGLE_CONFIG(.color = sidebar_bg, .cornerRadius.topLeft = 10.f)
 		) {
 			CLAY_TEXT(
-				CLAY_LOCAL_ID("Title"),
+				CLAY_ID_LOCAL("Title"),
 				CLAY_STRING("<shake>Content</shake>"),
 				CLAY_TEXT_CONFIG(.fontSize = 24, .textColor = text_color)
 			);
@@ -161,7 +161,7 @@ update(void) {
 
 				for (int i = 0; i < hsize(sprite_instances); ++i) {
 					CUTE_CLAY_BORDER(
-						CLAY_LOCAL_IDI("Animation", i),
+						CLAY_IDI_LOCAL("Animation", i),
 						CLAY_LAYOUT(
 							.layoutDirection = CLAY_TOP_TO_BOTTOM,
 							.childAlignment.x = CLAY_ALIGN_X_CENTER,
@@ -180,7 +180,7 @@ update(void) {
 						cf_sprite_update(instance);
 
 						CLAY_IMAGE(
-							CLAY_LOCAL_ID("Sprite"),
+							CLAY_ID_LOCAL("Sprite"),
 							CLAY_LAYOUT(
 								.sizing = {
 									.width = CLAY_SIZING_FIXED(instance->w),
@@ -191,7 +191,7 @@ update(void) {
 						);
 
 						CLAY_TEXT(
-							CLAY_LOCAL_ID("Animation name"),
+							CLAY_ID_LOCAL("Animation name"),
 							((Clay_String){
 								.length = strlen(instance->animation->name),
 								.chars = instance->animation->name,
