@@ -3,6 +3,7 @@
 #include "plugin_interface.h"
 #include <cute.h>
 #include "cute_clay.h"
+#include "cute_9_patch.h"
 
 static plugin_interface_t* plugin_interface = NULL;
 
@@ -10,8 +11,10 @@ REMODULE_VAR(bool, app_created) = false;
 
 REMODULE_VAR(Clay_Arena, clay_memory) = { 0 };
 REMODULE_VAR(bool, clay_debug) = false;
+
 REMODULE_VAR(CF_Sprite, sprite) = { 0 };
 REMODULE_VAR(htbl CF_Sprite*, sprite_instances) = NULL;
+REMODULE_VAR(cute_9_patch_t, window_frame) = { 0 };
 
 static const char* WINDOW_TITLE = "Cute clay";
 
@@ -23,6 +26,18 @@ init(void) {
 		cf_make_app(
 			WINDOW_TITLE, 0, 0, 0, 1280, 720, options, plugin_interface->argv[0]
 		);
+
+		// Mount assets dir
+		char* base_dir = spnorm(cf_fs_get_base_directory());
+		char* dir = sppopn(base_dir, 1);
+		scat(dir, "/assets");
+		CF_Result result = cf_fs_mount(dir, "/assets", true);
+		if (result.code != CF_RESULT_SUCCESS) {
+			fprintf(stderr, "%s\n", result.details);
+		}
+		sfree(dir);
+		sfree(base_dir);
+
 		app_created = true;
 	}
 
@@ -49,6 +64,22 @@ init(void) {
 	if (!sprite.name) {
 		sprite = cf_make_demo_sprite();
 	}
+
+	CF_Png png;
+	CF_Result result = cf_png_cache_load("assets/frame.png", &png);
+	if (result.code != CF_RESULT_SUCCESS) {
+		fprintf(stderr, "%s\n", result.details);
+	}
+	cute_9_patch_init(
+		&window_frame,
+		(CF_Image){ .w = png.w, .h = png.h, .pix = png.pix },
+		(cute_9_patch_config_t) {
+			.left = 25,
+			.right = 25,
+			.top = 25,
+			.bottom = 25,
+		}
+	);
 }
 
 static void
@@ -212,6 +243,16 @@ update(void) {
 		clay_debug = !clay_debug;
 		Clay_SetDebugModeEnabled(clay_debug);
 	}
+
+	cute_9_patch_draw(
+		&window_frame,
+		(CF_Aabb){
+			.min.x = 0.f,
+			.min.y = 0.f,
+			.max.x = 200.f,
+			.max.y = 150.f,
+		}
+	);
 
 	cf_app_draw_onto_screen(true);
 }

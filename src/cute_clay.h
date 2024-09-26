@@ -1,3 +1,6 @@
+#ifndef CUTE_CLAY_H
+#define CUTE_CLAY_H
+
 #define CLAY_EXTEND_CONFIG_TEXT const char* fontName;
 #define CLAY_ const char* fontName;
 #include <clay.h>
@@ -55,3 +58,5 @@ cute_clay_render(
 	Clay_RenderCommandArray cmds,
 	cute_clay_custom_renderer_t custom_redenderer
 );
+
+#endif

@@ -25,7 +25,9 @@ main(int argc, const char* argv[]) {
 			plugin_interface.update();
 		}
 
-		if (remodule_check(monitor)) {
+		if (remodule_should_reload(monitor)) {
+			printf("Reloading\n");
+			remodule_reload(module);
 			printf("Reloaded\n");
 		}
 	}
