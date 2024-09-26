@@ -62,12 +62,19 @@ cute_clay_render(
 			case CLAY_RENDER_COMMAND_TYPE_NONE:
 				break;
 			case CLAY_RENDER_COMMAND_TYPE_RECTANGLE:
-				cute_clay_push_color(cmd.config.rectangleElementConfig->color);
-				cf_draw_box_rounded_fill(
-					cute_clay_aabb(cmd.boundingBox),
-					cmd.config.rectangleElementConfig->cornerRadius.topLeft
-				);
-				cf_draw_pop_color();
+				if (cmd.config.rectangleElementConfig->nine_patch == NULL) {
+					cute_clay_push_color(cmd.config.rectangleElementConfig->color);
+					cf_draw_box_rounded_fill(
+						cute_clay_aabb(cmd.boundingBox),
+						cmd.config.rectangleElementConfig->cornerRadius.topLeft
+					);
+					cf_draw_pop_color();
+				} else {
+					cute_9_patch_draw(
+						cmd.config.rectangleElementConfig->nine_patch,
+						cute_clay_aabb(cmd.boundingBox)
+					);
+				}
 				break;
 			case CLAY_RENDER_COMMAND_TYPE_BORDER:
 				cute_clay_push_color(cmd.config.borderElementConfig->left.color);

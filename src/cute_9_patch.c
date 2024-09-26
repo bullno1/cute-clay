@@ -42,6 +42,8 @@ cute_9_patch_init(
 	CF_Image src,
 	cute_9_patch_config_t config
 ) {
+	// TODO: if the dimensions are the same, just overwrite pixels with
+	// cf_easy_sprite_update
 	if (nine_patch->nw.name != NULL) {
 		cf_easy_sprite_unload(&nine_patch->nw);
 		cf_easy_sprite_unload(&nine_patch->n);

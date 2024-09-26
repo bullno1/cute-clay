@@ -134,7 +134,7 @@ update(void) {
 				.padding = {16, 16},
 				.childGap = 16
 			),
-			CLAY_RECTANGLE_CONFIG(.color = sidebar_bg)
+			CLAY_RECTANGLE_CONFIG(.color = sidebar_bg, .nine_patch = &window_frame)
 		) {
 			CLAY_TEXT(
 				CLAY_ID_LOCAL("Title"),
@@ -154,7 +154,11 @@ update(void) {
 				.padding = {16, 16},
 				.childGap = 16
 			),
-			CLAY_RECTANGLE_CONFIG(.color = sidebar_bg, .cornerRadius.topLeft = 10.f)
+			CLAY_RECTANGLE_CONFIG(
+				.color = sidebar_bg,
+				.cornerRadius.topLeft = 10.f,
+				.nine_patch = &window_frame,
+			)
 		) {
 			CLAY_TEXT(
 				CLAY_ID_LOCAL("Title"),
@@ -243,16 +247,6 @@ update(void) {
 		clay_debug = !clay_debug;
 		Clay_SetDebugModeEnabled(clay_debug);
 	}
-
-	cute_9_patch_draw(
-		&window_frame,
-		(CF_Aabb){
-			.min.x = 0.f,
-			.min.y = 0.f,
-			.max.x = 200.f,
-			.max.y = 150.f,
-		}
-	);
 
 	cf_app_draw_onto_screen(true);
 }

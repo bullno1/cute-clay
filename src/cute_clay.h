@@ -1,7 +1,9 @@
 #ifndef CUTE_CLAY_H
 #define CUTE_CLAY_H
 
+#include "cute_9_patch.h"
 #define CLAY_EXTEND_CONFIG_TEXT const char* fontName;
+#define CLAY_EXTEND_CONFIG_RECTANGLE cute_9_patch_t* nine_patch;
 #define CLAY_ const char* fontName;
 #include <clay.h>
 #include <cute_color.h>
