@@ -65,21 +65,23 @@ init(void) {
 		sprite = cf_make_demo_sprite();
 	}
 
-	CF_Png png;
-	CF_Result result = cf_png_cache_load("assets/frame.png", &png);
-	if (result.code != CF_RESULT_SUCCESS) {
+	CF_Image img;
+	CF_Result result = cf_image_load_png("assets/frame.png", &img);
+	if (result.code == CF_RESULT_SUCCESS) {
+		cute_9_patch_init(
+			&window_frame,
+			img,
+			(cute_9_patch_config_t) {
+				.left = 25,
+				.right = 25,
+				.top = 25,
+				.bottom = 25,
+			}
+		);
+		cf_image_free(&img);
+	} else {
 		fprintf(stderr, "%s\n", result.details);
 	}
-	cute_9_patch_init(
-		&window_frame,
-		(CF_Image){ .w = png.w, .h = png.h, .pix = png.pix },
-		(cute_9_patch_config_t) {
-			.left = 25,
-			.right = 25,
-			.top = 25,
-			.bottom = 25,
-		}
-	);
 }
 
 static void

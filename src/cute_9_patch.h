@@ -28,6 +28,6 @@ cute_9_patch_init(
 );
 
 void
-cute_9_patch_draw(cute_9_patch_t* nine_patch, CF_Aabb aabb);
+cute_9_patch_draw(const cute_9_patch_t* nine_patch, CF_Aabb aabb);
 
 #endif
