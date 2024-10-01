@@ -8,7 +8,7 @@ static plugin_interface_t* plugin_interface = NULL;
 
 REMODULE_VAR(bool, app_created) = false;
 
-REMODULE_VAR(Clay_Arena, clay_memory) = { 0 };
+REMODULE_VAR(cute_clay_ctx_t*, ui_ctx) = NULL;
 REMODULE_VAR(bool, clay_debug) = false;
 
 REMODULE_VAR(CF_Sprite, sprite) = { 0 };
@@ -45,19 +45,12 @@ init(void) {
 	cf_app_set_title(WINDOW_TITLE);
 
 	// Clay
-	uint64_t totalMemorySize = Clay_MinMemorySize();
-	void* memory = clay_memory.memory != NULL ? clay_memory.memory : malloc(totalMemorySize);
-	clay_memory = Clay_CreateArenaWithCapacityAndMemory(totalMemorySize, memory);
-	memset(memory, 0, totalMemorySize);  // TODO: remove once fix is merged
-
-	int width, height;
-	cf_app_get_size(&width, &height);
-	Clay_Initialize(clay_memory, (Clay_Dimensions){
-		.width = width,
-		.height = height,
-	});
+	if (ui_ctx == NULL) {
+		ui_ctx = cute_clay_init();
+	} else {
+		cute_clay_set_ctx(ui_ctx);
+	}
 	Clay_SetDebugModeEnabled(clay_debug);
-	Clay_SetMeasureTextFunction(cute_clay_measure_text);
 
 	// Assets
 	if (!sprite.name) {
@@ -92,22 +85,9 @@ update(void) {
 	cf_app_update(fixed_update);
 
 	// UI
-	int w, h;
-	cf_app_get_size(&w, &h);
-	Clay_SetLayoutDimensions((Clay_Dimensions){ w, h });
+	cute_clay_begin();
 
-	Clay_SetPointerState(
-		(Clay_Vector2){ cf_mouse_x(), cf_mouse_y() },
-		cf_mouse_down(CF_MOUSE_BUTTON_LEFT)
-	);
-	Clay_UpdateScrollContainers(
-		true,
-		(Clay_Vector2){ 0.f, cf_mouse_wheel_motion() },
-		CF_DELTA_TIME
-	);
 	cf_push_font("Calibri");
-	Clay_BeginLayout();
-
 	Clay_Color root_bg = { 128, 128, 128, 255 };
 	Clay_Color sidebar_bg = { 100, 100, 100, 255 };
 	Clay_Color text_color = { 255, 255, 255, 255 };
@@ -242,8 +222,8 @@ update(void) {
 	}
 
 	cf_pop_font();
-	Clay_RenderCommandArray clay_render_cmds = Clay_EndLayout();
-	cute_clay_render(clay_render_cmds, NULL);
+	Clay_RenderCommandArray ui_render_cmds = cute_clay_end();
+	cute_clay_render(ui_render_cmds, NULL);
 
 	if (cf_key_just_pressed(CF_KEY_F12)) {
 		clay_debug = !clay_debug;
@@ -255,7 +235,7 @@ update(void) {
 
 static void
 cleanup(void) {
-	free(clay_memory.memory);
+	cute_clay_cleanup(ui_ctx);
 	hfree(sprite_instances);
 
 	cf_destroy_app();

@@ -11,6 +11,32 @@
 
 typedef void (*cute_clay_custom_renderer_t)(Clay_RenderCommand cmd);
 
+typedef struct cute_clay_ctx_s cute_clay_ctx_t;
+
+cute_clay_ctx_t*
+cute_clay_init(void);
+
+void
+cute_clay_set_ctx(cute_clay_ctx_t* ctx);
+
+void
+cute_clay_cleanup(cute_clay_ctx_t* ctx);
+
+void
+cute_clay_begin(void);
+
+Clay_RenderCommandArray
+cute_clay_end(void);
+
+Clay_Dimensions
+cute_clay_measure_text(Clay_String* text, Clay_TextElementConfig* config);
+
+void
+cute_clay_render(
+	Clay_RenderCommandArray cmds,
+	cute_clay_custom_renderer_t custom_redenderer
+);
+
 static inline Clay_Color
 cute_clay_color(CF_Color color) {
 	return (Clay_Color) {
@@ -31,14 +57,5 @@ cute_clay_sprite(CF_Sprite* sprite) {
 		}
 	};
 }
-
-Clay_Dimensions
-cute_clay_measure_text(Clay_String* text, Clay_TextElementConfig* config);
-
-void
-cute_clay_render(
-	Clay_RenderCommandArray cmds,
-	cute_clay_custom_renderer_t custom_redenderer
-);
 
 #endif

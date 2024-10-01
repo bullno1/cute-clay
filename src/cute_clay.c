@@ -2,6 +2,13 @@
 #include "cute_clay.h"
 #include <cute_app.h>
 #include <cute_draw.h>
+#include <cute_input.h>
+
+struct cute_clay_ctx_s {
+	Clay_Arena arena;
+};
+
+static cute_clay_ctx_t* cute_clay_ctx = NULL;
 
 static inline CF_Aabb
 cute_clay_aabb(Clay_BoundingBox bbox) {
@@ -25,6 +32,66 @@ cute_clay_push_color(Clay_Color color) {
 		.g = color.g / 255.f,
 		.b = color.b / 255.f,
 	});
+}
+
+cute_clay_ctx_t*
+cute_clay_init(void) {
+	uint64_t totalMemorySize = Clay_MinMemorySize();
+	void* memory = cf_alloc(totalMemorySize);
+	Clay_Arena arena = Clay_CreateArenaWithCapacityAndMemory(totalMemorySize, memory);
+
+	cute_clay_ctx_t* ctx = cf_alloc(sizeof(cute_clay_ctx_t));
+	*ctx = (cute_clay_ctx_t){
+		.arena = arena,
+	};
+
+	cute_clay_set_ctx(ctx);
+
+	return ctx;
+}
+
+void
+cute_clay_set_ctx(cute_clay_ctx_t* ctx) {
+	int width, height;
+	cf_app_get_size(&width, &height);
+
+	Clay_Initialize(ctx->arena, (Clay_Dimensions){
+		.width = width,
+		.height = height,
+	});
+	Clay_SetMeasureTextFunction(cute_clay_measure_text);
+
+	cute_clay_ctx = ctx;
+}
+
+void
+cute_clay_cleanup(cute_clay_ctx_t* ctx) {
+	cf_free(ctx->arena.memory);
+	cf_free(ctx);
+}
+
+void
+cute_clay_begin(void) {
+	int w, h;
+	cf_app_get_size(&w, &h);
+	Clay_SetLayoutDimensions((Clay_Dimensions){ w, h });
+
+	Clay_SetPointerState(
+		(Clay_Vector2){ cf_mouse_x(), cf_mouse_y() },
+		cf_mouse_down(CF_MOUSE_BUTTON_LEFT)
+	);
+	Clay_UpdateScrollContainers(
+		true,
+		(Clay_Vector2){ 0.f, cf_mouse_wheel_motion() },
+		CF_DELTA_TIME
+	);
+
+	Clay_BeginLayout();
+}
+
+Clay_RenderCommandArray
+cute_clay_end(void) {
+	return Clay_EndLayout();
 }
 
 Clay_Dimensions
