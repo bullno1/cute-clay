@@ -3,7 +3,6 @@
 #include "plugin_interface.h"
 #include <cute.h>
 #include "cute_clay.h"
-#include "cute_9_patch.h"
 
 static plugin_interface_t* plugin_interface = NULL;
 
@@ -113,7 +112,7 @@ update(void) {
 	Clay_Color sidebar_bg = { 100, 100, 100, 255 };
 	Clay_Color text_color = { 255, 255, 255, 255 };
 
-	CUTE_CLAY_RECTANGLE(
+	CLAY_RECTANGLE(
 		CLAY_ID("root"),
 		CLAY_LAYOUT(
 			.sizing = {
@@ -125,7 +124,7 @@ update(void) {
 		),
 		CLAY_RECTANGLE_CONFIG(.color = root_bg)
 	) {
-		CUTE_CLAY_RECTANGLE(
+		CLAY_RECTANGLE(
 			CLAY_ID("SideBar"),
 			CLAY_LAYOUT(
 				.layoutDirection = CLAY_TOP_TO_BOTTOM,
@@ -145,7 +144,7 @@ update(void) {
 			);
 		}
 
-		CUTE_CLAY_RECTANGLE(
+		CLAY_RECTANGLE(
 			CLAY_ID("Content"),
 			CLAY_LAYOUT(
 				.layoutDirection = CLAY_TOP_TO_BOTTOM,
@@ -168,7 +167,7 @@ update(void) {
 				CLAY_TEXT_CONFIG(.fontSize = 24, .textColor = text_color)
 			);
 
-			CUTE_CLAY_CONTAINER(
+			CLAY_CONTAINER(
 				CLAY_ID("Sprite container"),
 				CLAY_LAYOUT(
 					.layoutDirection = CLAY_LEFT_TO_RIGHT,
@@ -197,7 +196,7 @@ update(void) {
 				}
 
 				for (int i = 0; i < hsize(sprite_instances); ++i) {
-					CUTE_CLAY_BORDER(
+					CLAY_BORDER_CONTAINER(
 						CLAY_IDI_LOCAL("Animation", i),
 						CLAY_LAYOUT(
 							.layoutDirection = CLAY_TOP_TO_BOTTOM,
@@ -224,8 +223,9 @@ update(void) {
 									.height = CLAY_SIZING_FIXED(instance->h),
 								}
 							),
-							Clay__StoreImageElementConfig(cute_clay_sprite(instance)),
-						);
+							Clay__StoreImageElementConfig(cute_clay_sprite(instance))
+						) {
+						}
 
 						CLAY_TEXT(
 							CLAY_ID_LOCAL("Animation name"),
