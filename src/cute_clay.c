@@ -1,11 +1,24 @@
-#define CLAY_IMPLEMENTATION
 #include "cute_clay.h"
+#include "cute_9_patch.h"
+#include <cute_alloc.h>
 #include <cute_app.h>
 #include <cute_draw.h>
 #include <cute_input.h>
+#include <cute_hashtable.h>
+
+#define CUTE_CLAY_ARENA_CHUNK_SIZE 4096
+
+typedef struct {
+	size_t size;
+	void* data;
+} cute_clay_state_hdr_t;
 
 struct cute_clay_ctx_s {
-	Clay_Arena arena;
+	Clay_Arena clay_arena;
+	CF_Arena current_arena;
+	CF_Arena previous_arena;
+	htbl cute_clay_state_hdr_t* current_states;
+	htbl cute_clay_state_hdr_t* previous_states;
 };
 
 static cute_clay_ctx_t* cute_clay_ctx = NULL;
@@ -38,12 +51,14 @@ cute_clay_ctx_t*
 cute_clay_init(void) {
 	uint64_t totalMemorySize = Clay_MinMemorySize();
 	void* memory = cf_alloc(totalMemorySize);
-	Clay_Arena arena = Clay_CreateArenaWithCapacityAndMemory(totalMemorySize, memory);
+	Clay_Arena clay_arena = Clay_CreateArenaWithCapacityAndMemory(totalMemorySize, memory);
 
 	cute_clay_ctx_t* ctx = cf_alloc(sizeof(cute_clay_ctx_t));
 	*ctx = (cute_clay_ctx_t){
-		.arena = arena,
+		.clay_arena = clay_arena,
 	};
+	cf_arena_init(&ctx->current_arena, _Alignof(max_align_t), CUTE_CLAY_ARENA_CHUNK_SIZE);
+	cf_arena_init(&ctx->previous_arena, _Alignof(max_align_t), CUTE_CLAY_ARENA_CHUNK_SIZE);
 
 	cute_clay_set_ctx(ctx);
 
@@ -55,7 +70,7 @@ cute_clay_set_ctx(cute_clay_ctx_t* ctx) {
 	int width, height;
 	cf_app_get_size(&width, &height);
 
-	Clay_Initialize(ctx->arena, (Clay_Dimensions){
+	Clay_Initialize(ctx->clay_arena, (Clay_Dimensions){
 		.width = width,
 		.height = height,
 	});
@@ -66,7 +81,11 @@ cute_clay_set_ctx(cute_clay_ctx_t* ctx) {
 
 void
 cute_clay_cleanup(cute_clay_ctx_t* ctx) {
-	cf_free(ctx->arena.memory);
+	cf_arena_reset(&ctx->previous_arena);
+	cf_arena_reset(&ctx->current_arena);
+	hfree(ctx->previous_states);
+	hfree(ctx->current_states);
+	cf_free(ctx->clay_arena.memory);
 	cf_free(ctx);
 }
 
@@ -87,6 +106,17 @@ cute_clay_begin(void) {
 	);
 
 	Clay_BeginLayout();
+
+	// Flip arena and states
+	CF_Arena tmp_arena = cute_clay_ctx->current_arena;
+	cute_clay_ctx->current_arena = cute_clay_ctx->previous_arena;
+	cute_clay_ctx->previous_arena = tmp_arena;
+	cf_arena_reset(&cute_clay_ctx->current_arena);
+
+	htbl cute_clay_state_hdr_t* tmp_states = cute_clay_ctx->current_states;
+	cute_clay_ctx->current_states = cute_clay_ctx->previous_states;
+	cute_clay_ctx->previous_states = tmp_states;
+	hclear(cute_clay_ctx->current_states);
 }
 
 Clay_RenderCommandArray
@@ -192,4 +222,29 @@ cute_clay_render(
 		}
 	}
 	cf_draw_pop();
+}
+
+void*
+cute_clay_state(Clay_ElementId id, size_t size, void* default_value) {
+	cute_clay_state_hdr_t hdr = hget(cute_clay_ctx->current_states, id.id);
+
+	// Already created and no size change
+	if (hdr.data != NULL && hdr.size == size) {
+		return hdr.data;
+	}
+
+	// Try copying from last frame
+	cute_clay_state_hdr_t previous_hdr = hget(cute_clay_ctx->previous_states, id.id);
+	void* state = cf_arena_alloc(&cute_clay_ctx->current_arena, size);
+	if (previous_hdr.data != NULL && previous_hdr.size == size) {
+		memcpy(state, previous_hdr.data, size);
+	} else {
+		memcpy(state, default_value, size);
+	}
+	hset(cute_clay_ctx->current_states, id.id, (cute_clay_state_hdr_t){
+		.data = state,
+		.size = size,
+	});
+
+	return state;
 }

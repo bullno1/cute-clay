@@ -3,6 +3,7 @@
 #include "plugin_interface.h"
 #include <cute.h>
 #include "cute_clay.h"
+#include "cute_9_patch.h"
 
 static plugin_interface_t* plugin_interface = NULL;
 

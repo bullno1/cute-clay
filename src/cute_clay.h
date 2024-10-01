@@ -1,13 +1,16 @@
 #ifndef CUTE_CLAY_H
 #define CUTE_CLAY_H
 
-#include "cute_9_patch.h"
+struct cute_9_patch_s;
 #define CLAY_EXTEND_CONFIG_TEXT const char* fontName;
-#define CLAY_EXTEND_CONFIG_RECTANGLE cute_9_patch_t* nine_patch;
+#define CLAY_EXTEND_CONFIG_RECTANGLE struct cute_9_patch_s* nine_patch;
 #define CLAY_ const char* fontName;
 #include <clay.h>
+#include <cute_sprite.h>
 #include <cute_color.h>
-#include <cute_draw.h>
+
+#define CUTE_CLAY_STATE(id, type, ...) \
+	(type*)cute_clay_state(id, sizeof(type), &(type) { __VA_ARGS__ })
 
 typedef void (*cute_clay_custom_renderer_t)(Clay_RenderCommand cmd);
 
@@ -36,6 +39,9 @@ cute_clay_render(
 	Clay_RenderCommandArray cmds,
 	cute_clay_custom_renderer_t custom_redenderer
 );
+
+void*
+cute_clay_state(Clay_ElementId id, size_t size, void* default_value);
 
 static inline Clay_Color
 cute_clay_color(CF_Color color) {

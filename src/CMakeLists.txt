@@ -6,6 +6,7 @@ set(plugin_sources
 	"plugin_main.c"
 	"cute_clay.c"
 	"cute_9_patch.c"
+	"clay.c"
 )
 setup_library(cute-clay_plugin FALSE "${plugin_sources}")
 target_link_libraries(cute-clay_plugin PRIVATE

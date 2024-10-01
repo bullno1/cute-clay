@@ -9,7 +9,7 @@ typedef struct {
 	int left, right, top, bottom;
 } cute_9_patch_config_t;
 
-typedef struct {
+typedef struct cute_9_patch_s {
 	cute_9_patch_config_t config;
 	int center_width;
 	int center_height;
