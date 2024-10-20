@@ -57,8 +57,8 @@ cute_clay_init(void) {
 	*ctx = (cute_clay_ctx_t){
 		.clay_arena = clay_arena,
 	};
-	cf_arena_init(&ctx->current_arena, _Alignof(max_align_t), CUTE_CLAY_ARENA_CHUNK_SIZE);
-	cf_arena_init(&ctx->previous_arena, _Alignof(max_align_t), CUTE_CLAY_ARENA_CHUNK_SIZE);
+	ctx->current_arena = cf_make_arena(_Alignof(max_align_t), CUTE_CLAY_ARENA_CHUNK_SIZE);
+	ctx->previous_arena = cf_make_arena(_Alignof(max_align_t), CUTE_CLAY_ARENA_CHUNK_SIZE);
 
 	cute_clay_set_ctx(ctx);
 
@@ -81,8 +81,8 @@ cute_clay_set_ctx(cute_clay_ctx_t* ctx) {
 
 void
 cute_clay_cleanup(cute_clay_ctx_t* ctx) {
-	cf_arena_reset(&ctx->previous_arena);
-	cf_arena_reset(&ctx->current_arena);
+	cf_destroy_arena(&ctx->previous_arena);
+	cf_destroy_arena(&ctx->current_arena);
 	hfree(ctx->previous_states);
 	hfree(ctx->current_states);
 	cf_free(ctx->clay_arena.memory);
@@ -198,8 +198,9 @@ cute_clay_render(
 				{
 					CF_Sprite* sprite = cmd.config.imageElementConfig->imageData;
 					// TODO: clip or scale?
-					sprite->transform.p.x = cmd.boundingBox.x + sprite->w * 0.5f + sprite->local_offset.x;
-					sprite->transform.p.y = -cmd.boundingBox.y - sprite->h * 0.5f - sprite->local_offset.y;
+					CF_V2 pivot = sprite->pivots[sprite->frame_index];
+					sprite->transform.p.x = cmd.boundingBox.x + sprite->w * 0.5f + pivot.x;
+					sprite->transform.p.y = -cmd.boundingBox.y - sprite->h * 0.5f - pivot.y;
 					cf_draw_sprite(sprite);
 				}
 				break;

@@ -16,6 +16,10 @@ target_include_directories(cute SYSTEM PUBLIC BEFORE "cute_framework/libraries/c
 add_library(remodule INTERFACE)
 target_include_directories(remodule INTERFACE remodule)
 
+# --- blibs --
+add_library(blibs INTERFACE)
+target_include_directories(blibs INTERFACE blibs)
+
 # --- clay ---
 add_library(clay INTERFACE)
 target_include_directories(clay SYSTEM INTERFACE clay)

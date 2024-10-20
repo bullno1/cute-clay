@@ -20,8 +20,8 @@ cute_9_patch_init_patch(
 
 	if (sprite->name == NULL) {
 		CF_Sprite patch = cf_make_easy_sprite_from_pixels(tmp_buf, w, h);
-		patch.local_offset.x = w * 0.5;
-		patch.local_offset.y = -h * 0.5;
+		patch.offset.x = w * 0.5;
+		patch.offset.y = -h * 0.5;
 		*sprite = patch;
 	} else {
 		cf_easy_sprite_update_pixels(sprite, tmp_buf);

@@ -12,6 +12,7 @@ setup_library(cute-clay_plugin FALSE "${plugin_sources}")
 target_link_libraries(cute-clay_plugin PRIVATE
 	cute  # :">
 	remodule
+	blibs
 	clay
 )
 set_target_properties(cute-clay_plugin PROPERTIES
@@ -24,4 +25,5 @@ add_executable(cute-clay "host_main.c")
 target_link_libraries(cute-clay PRIVATE
 	cute  # :">
 	remodule
+	blibs
 )
