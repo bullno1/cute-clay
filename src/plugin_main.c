@@ -1,5 +1,7 @@
 #define REMODULE_PLUGIN_IMPLEMENTATION
 #include <remodule.h>
+#define BRESMON_IMPLEMENTATION
+#include <bresmon.h>
 #include "plugin_interface.h"
 #include <cute.h>
 #include "cute_clay.h"
@@ -9,14 +11,44 @@ static plugin_interface_t* plugin_interface = NULL;
 
 REMODULE_VAR(bool, app_created) = false;
 
+REMODULE_VAR(bresmon_t*, resmon) = NULL;
+
 REMODULE_VAR(cute_clay_ctx_t*, ui_ctx) = NULL;
 REMODULE_VAR(bool, clay_debug) = false;
 
 REMODULE_VAR(CF_Sprite, sprite) = { 0 };
 REMODULE_VAR(htbl CF_Sprite*, sprite_instances) = NULL;
 REMODULE_VAR(cute_9_patch_t, window_frame) = { 0 };
+REMODULE_VAR(bresmon_watch_t*, window_frame_mon) = NULL;
 
 static const char* WINDOW_TITLE = "Cute clay";
+
+static void
+load_9_patch(const char* path, void* userdata) {
+	(void)path;
+	(void)userdata;
+
+	printf("Loading %s\n", path);
+
+	CF_Image img;
+	CF_Result result = cf_image_load_png("assets/frame.png", &img);
+	if (result.code == CF_RESULT_SUCCESS) {
+		cute_9_patch_init(
+			&window_frame,
+			img,
+			(cute_9_patch_config_t) {
+				.left = 25,
+				.right = 25,
+				.top = 25,
+				.bottom = 25,
+			}
+		);
+		cf_image_free(&img);
+		bresmon_init_watch(resmon, &window_frame_mon, "assets/frame.png", load_9_patch, NULL);
+	} else {
+		fprintf(stderr, "%s\n", result.details);
+	}
+}
 
 static void
 init(void) {
@@ -45,6 +77,11 @@ init(void) {
 	cf_app_set_vsync(true);
 	cf_app_set_title(WINDOW_TITLE);
 
+	// Resource monitor
+	if (resmon == NULL) {
+		resmon = bresmon_create(NULL);
+	}
+
 	// Clay
 	if (ui_ctx == NULL) {
 		ui_ctx = cute_clay_init();
@@ -58,23 +95,7 @@ init(void) {
 		sprite = cf_make_demo_sprite();
 	}
 
-	CF_Image img;
-	CF_Result result = cf_image_load_png("assets/frame.png", &img);
-	if (result.code == CF_RESULT_SUCCESS) {
-		cute_9_patch_init(
-			&window_frame,
-			img,
-			(cute_9_patch_config_t) {
-				.left = 25,
-				.right = 25,
-				.top = 25,
-				.bottom = 25,
-			}
-		);
-		cf_image_free(&img);
-	} else {
-		fprintf(stderr, "%s\n", result.details);
-	}
+	load_9_patch("assets/frame.png", NULL);
 }
 
 static void
@@ -83,6 +104,9 @@ fixed_update(void* udata) {
 
 static void
 update(void) {
+	// Reload
+	bresmon_check(resmon, false);
+
 	cf_app_update(fixed_update);
 
 	// UI
@@ -239,6 +263,7 @@ cleanup(void) {
 	cute_clay_cleanup(ui_ctx);
 	hfree(sprite_instances);
 
+	bresmon_destroy(resmon);
 	cf_destroy_app();
 }
 
